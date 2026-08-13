@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ product['name'] if product else 'Product not found' }} - SmartShop</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="{{ url_for('products.index') }}">SmartShop</a>
+    <form class="navbar-search" action="{{ url_for('products.list_products') }}" method="get">
+      <input type="text" name="q" placeholder="Search products...">
+      <button type="submit">Search</button>
+    </form>
+    <div class="navbar-links">
+      <a href="{{ url_for('products.list_products') }}">Products</a>
+      {% if session.user_id %}
+        <a class="cart-link" href="{{ url_for('orders.cart') }}">Cart</a>
+        <a href="{{ url_for('orders.orders_history') }}">My Orders</a>
+        {% if session.role == 'seller' %}<a href="{{ url_for('seller.dashboard') }}">Seller Panel</a>{% endif %}
+        {% if session.role == 'admin' %}<a href="{{ url_for('admin.dashboard') }}">Admin Panel</a>{% endif %}
+        <div class="navbar-user">{{ session.name }} <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="{{ url_for('auth.register') }}">Register</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+  {% endwith %}
+</div>
+
+<div class="container page">
+  {% if product %}
+  <div class="detail-layout">
+    <div>
+      {% if product['image'] %}
+        <img src="{{ url_for('static', filename='images/' + product['image']) }}" alt="{{ product['name'] }}">
+      {% else %}
+        <img src="https://via.placeholder.com/500x400?text=No+Image" alt="{{ product['name'] }}">
+      {% endif %}
+    </div>
+    <div>
+      {% if product['category'] %}<span class="category-tag">{{ product['category'] }}</span>{% endif %}
+      <h1>{{ product['name'] }}</h1>
+      <p style="color:#64748b;">{{ product['description'] }}</p>
+      <div class="price" style="font-size:26px; margin:14px 0;">₹{{ "%.2f"|format(product['price']) }}</div>
+      {% if product['stock'] > 0 %}
+        <p class="stock-ok">✔ In stock — {{ product['stock'] }} available</p>
+        <form action="{{ url_for('orders.add', product_id=product['id']) }}" method="post" style="max-width:220px;">
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" name="quantity" value="1" min="1" max="{{ product['stock'] }}">
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Add to Cart</button>
+        </form>
+      {% else %}
+        <p class="stock-low">✘ Out of stock</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if similar %}
+  <div class="section-title"><h2>You may also like</h2></div>
+  <div class="grid grid-4">
+    {% for p in similar %}
+    <a class="product-card" href="{{ url_for('products.product_details', product_id=p['id']) }}">
+      {% if p['image'] %}
+        <img src="{{ url_for('static', filename='images/' + p['image']) }}" alt="{{ p['name'] }}">
+      {% else %}
+        <img src="https://via.placeholder.com/300x200?text=No+Image" alt="{{ p['name'] }}">
+      {% endif %}
+      <div class="body">
+        <strong>{{ p['name'] }}</strong>
+        <span class="price">₹{{ "%.2f"|format(p['price']) }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="empty-state"><h2>Product not found</h2><a href="{{ url_for('products.list_products') }}">Back to products</a></div>
+  {% endif %}
+</div>
+
+{% include "footer.html" %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

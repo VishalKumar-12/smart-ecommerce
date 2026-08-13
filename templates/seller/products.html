@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>My Products - SmartShop</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/navbar.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    <style>
+
+        /* =========================
+           PRODUCT IMAGE
+        ========================= */
+
+        .product-thumb {
+            width: 65px;
+            height: 65px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: block;
+        }
+
+
+        /* =========================
+           NO IMAGE
+        ========================= */
+
+        .no-image {
+            width: 65px;
+            height: 65px;
+
+            border-radius: 8px;
+
+            background: #f1f1f1;
+
+            border: 1px solid #ddd;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            color: #888;
+
+            font-size: 12px;
+
+            text-align: center;
+        }
+
+
+        /* =========================
+           CATEGORY HEADER
+        ========================= */
+
+        .category-section {
+            margin-top: 30px;
+            margin-bottom: 12px;
+
+            padding: 12px 16px;
+
+            background: #f5f5f5;
+
+            border-radius: 8px;
+
+            border-left: 5px solid #333;
+        }
+
+
+        .category-section h2 {
+            margin: 0;
+
+            font-size: 20px;
+
+            font-weight: 600;
+        }
+
+
+        /* First category should not have too much top margin */
+
+        .category-section:first-of-type {
+            margin-top: 10px;
+        }
+
+
+        /* =========================
+           PRODUCT TABLE
+        ========================= */
+
+        .product-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-bottom: 20px;
+        }
+
+
+        .product-table th,
+        .product-table td {
+
+            padding: 12px;
+
+            text-align: left;
+
+            vertical-align: middle;
+        }
+
+
+        .product-table th {
+
+            font-weight: 600;
+        }
+
+
+        /* =========================
+           ACTION BUTTONS
+        ========================= */
+
+        .action-buttons {
+
+            display: flex;
+
+            gap: 6px;
+
+            align-items: center;
+        }
+
+
+        .action-buttons form {
+
+            margin: 0;
+        }
+
+
+        /* =========================
+           EMPTY STATE
+        ========================= */
+
+        .empty-state {
+
+            text-align: center;
+
+            padding: 50px 20px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<nav class="navbar">
+
+    <div class="navbar-inner">
+
+
+        <!-- LOGO -->
+
+        <a class="navbar-brand"
+           href="{{ url_for('products.index') }}">
+
+            SmartShop
+
+        </a>
+
+
+        <!-- NAVIGATION -->
+
+        <div class="navbar-links">
+
+
+            <a href="{{ url_for('products.list_products') }}">
+
+                Storefront
+
+            </a>
+
+
+            <div class="navbar-user">
+
+                {{ session.name }}
+
+
+                <a href="{{ url_for('auth.logout') }}">
+
+                    Logout
+
+                </a>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     FLASH MESSAGES
+===================================================== -->
+
+<div class="flash-container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% for category, message in messages %}
+
+            <div class="flash {{ category }}">
+
+                {{ message }}
+
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+</div>
+
+
+
+<!-- =====================================================
+     MAIN CONTAINER
+===================================================== -->
+
+<div class="container page">
+
+
+    <div class="dash-layout">
+
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================= -->
+
+        <div class="dash-sidebar">
+
+
+            <a href="{{ url_for('seller.dashboard') }}">
+
+                Dashboard
+
+            </a>
+
+
+            <a class="active"
+               href="{{ url_for('seller.products') }}">
+
+                My Products
+
+            </a>
+
+
+            <a href="{{ url_for('seller.orders') }}">
+
+                Orders
+
+            </a>
+
+
+            <a href="{{ url_for('seller.add_product') }}">
+
+                Add Product
+
+            </a>
+
+
+            <a href="{{ url_for('seller.inventory') }}">
+
+                Inventory
+
+            </a>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             MAIN CONTENT
+        ================================================= -->
+
+        <div>
+
+
+            <!-- HEADER -->
+
+            <div class="dash-header">
+
+
+                <h1>
+
+                    My Products
+
+                </h1>
+
+
+                <a href="{{ url_for('seller.add_product') }}"
+                   class="btn btn-primary">
+
+                    + Add Product
+
+                </a>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 PRODUCTS
+            ================================================= -->
+
+            {% if products %}
+
+
+                <!--
+
+                    namespace is used because Jinja variables
+                    inside loops normally don't persist.
+
+                -->
+
+                {% set current_category = namespace(value='') %}
+
+
+                {% for p in products %}
+
+
+                    <!-- =========================================
+                         NEW CATEGORY
+                    ========================================== -->
+
+                    {% if p['category'] != current_category.value %}
+
+
+                        <!-- Close previous table -->
+
+                        {% if not loop.first %}
+
+                                </tbody>
+
+                            </table>
+
+                        {% endif %}
+
+
+                        <!-- Update current category -->
+
+                        {% set current_category.value = p['category'] %}
+
+
+                        <!-- CATEGORY TITLE -->
+
+                        <div class="category-section">
+
+                            <h2>
+
+                                {{ p['category'] or 'Uncategorized' }}
+
+                            </h2>
+
+                        </div>
+
+
+                        <!-- CATEGORY TABLE -->
+
+                        <table class="product-table">
+
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Image
+                                    </th>
+
+                                    <th>
+                                        Name
+                                    </th>
+
+                                    <th>
+                                        Price
+                                    </th>
+
+                                    <th>
+                                        Stock
+                                    </th>
+
+                                    <th>
+                                        Actions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+
+                    {% endif %}
+
+
+
+                    <!-- =========================================
+                         PRODUCT ROW
+                    ========================================== -->
+
+                    <tr>
+
+
+                        <!-- IMAGE -->
+
+                        <td>
+
+
+                            {% if p['image'] %}
+
+
+                                <img
+
+                                    src="{{ url_for(
+                                        'static',
+                                        filename='images/' + p['image']
+                                    ) }}"
+
+                                    alt="{{ p['name'] }}"
+
+                                    class="product-thumb"
+
+                                >
+
+
+                            {% else %}
+
+
+                                <div class="no-image">
+
+                                    No Image
+
+                                </div>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+
+                        <!-- PRODUCT NAME -->
+
+                        <td>
+
+                            {{ p['name'] }}
+
+                        </td>
+
+
+
+                        <!-- PRICE -->
+
+                        <td>
+
+                            ₹{{ "%.2f"|format(p['price']) }}
+
+                        </td>
+
+
+
+                        <!-- STOCK -->
+
+                        <td>
+
+                            {{ p['stock'] }}
+
+                        </td>
+
+
+
+                        <!-- ACTIONS -->
+
+                        <td>
+
+
+                            <div class="action-buttons">
+
+
+                                <!-- EDIT -->
+
+                                <a
+
+                                    class="btn btn-secondary btn-sm"
+
+                                    href="{{ url_for(
+                                        'seller.edit_product',
+                                        product_id=p['id']
+                                    ) }}"
+
+                                >
+
+                                    Edit
+
+                                </a>
+
+
+
+                                <!-- DELETE -->
+
+                                <form
+
+                                    action="{{ url_for(
+                                        'seller.remove_product',
+                                        product_id=p['id']
+                                    ) }}"
+
+                                    method="post"
+
+                                    onsubmit="return confirm(
+                                        'Delete this product?'
+                                    );"
+
+                                >
+
+
+                                    <button
+
+                                        type="submit"
+
+                                        class="btn btn-danger btn-sm"
+
+                                    >
+
+                                        Delete
+
+                                    </button>
+
+
+                                </form>
+
+
+                            </div>
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+
+                <!-- =========================================
+                     CLOSE LAST TABLE
+                ========================================== -->
+
+                </tbody>
+
+                </table>
+
+
+            {% else %}
+
+
+                <!-- =========================================
+                     NO PRODUCTS
+                ========================================== -->
+
+                <div class="empty-state">
+
+
+                    <h2>
+
+                        No products yet
+
+                    </h2>
+
+
+                    <p>
+
+                        Start adding products to your store.
+
+                    </p>
+
+
+                    <a
+
+                        href="{{ url_for('seller.add_product') }}"
+
+                        class="btn btn-primary"
+
+                    >
+
+                        Add your first product
+
+                    </a>
+
+
+                </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script src="{{ url_for(
+    'static',
+    filename='js/main.js'
+) }}"></script>
+
+
+</body>
+
+</html>

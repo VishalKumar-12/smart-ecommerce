@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard - SmartShop</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="{{ url_for('products.index') }}">SmartShop</a>
+    <div class="navbar-links">
+      <a href="{{ url_for('products.list_products') }}">Storefront</a>
+      <div class="navbar-user">{{ session.name }} <span class="role-tag">admin</span> <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+    </div>
+  </div>
+</nav>
+
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+  {% endwith %}
+</div>
+
+<div class="container page">
+  <h1>Admin Dashboard</h1>
+
+  <div class="dash-stats">
+    <div class="card stat-card"><div class="num">{{ stats.total_users }}</div><div class="label">Total Users</div></div>
+    <div class="card stat-card"><div class="num">{{ stats.total_sellers }}</div><div class="label">Sellers</div></div>
+    <div class="card stat-card"><div class="num">{{ stats.total_products }}</div><div class="label">Products</div></div>
+    <div class="card stat-card"><div class="num">₹{{ "%.2f"|format(stats.total_revenue) }}</div><div class="label">Total Revenue</div></div>
+  </div>
+
+  <div class="dash-section">
+    <h3>All Users</h3>
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+      <tbody>
+      {% for u in users %}
+        <tr>
+          <td>{{ u['name'] }}</td>
+          <td>{{ u['email'] }}</td>
+          <td><span class="role-tag">{{ u['role'] }}</span></td>
+          <td>{{ u['created_at'] }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="dash-section">
+    <h3>All Products</h3>
+    <table>
+      <thead><tr><th>Name</th><th>Seller</th><th>Category</th><th>Price</th><th>Stock</th></tr></thead>
+      <tbody>
+      {% for p in products %}
+        <tr>
+          <td>{{ p['name'] }}</td>
+          <td>{{ p['seller_name'] }}</td>
+          <td>{{ p['category'] }}</td>
+          <td>₹{{ "%.2f"|format(p['price']) }}</td>
+          <td>{{ p['stock'] }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="dash-section">
+    <h3>All Orders</h3>
+    <table>
+      <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+      {% for o in orders %}
+        <tr>
+          <td>#{{ o['id'] }}</td>
+          <td>{{ o['customer_name'] }} ({{ o['customer_email'] }})</td>
+          <td>₹{{ "%.2f"|format(o['total']) }}</td>
+          <td><span class="badge badge-placed">{{ o['status'] }}</span></td>
+          <td>{{ o['created_at'] }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SmartShop - Home</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="{{ url_for('products.index') }}">SmartShop</a>
+    <form class="navbar-search" action="{{ url_for('products.list_products') }}" method="get">
+      <input type="text" name="q" placeholder="Search products...">
+      <button type="submit">Search</button>
+    </form>
+    <div class="navbar-links">
+      <a href="{{ url_for('products.list_products') }}">Products</a>
+      {% if session.user_id %}
+        <a class="cart-link" href="{{ url_for('orders.cart') }}">Cart</a>
+        <a href="{{ url_for('orders.orders_history') }}">My Orders</a>
+        {% if session.role == 'seller' %}<a href="{{ url_for('seller.dashboard') }}">Seller Panel</a>{% endif %}
+        {% if session.role == 'admin' %}<a href="{{ url_for('admin.dashboard') }}">Admin Panel</a>{% endif %}
+        <div class="navbar-user">
+          {{ session.name }} <span class="role-tag">{{ session.role }}</span>
+          <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="{{ url_for('auth.register') }}">Register</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+<div class="container page">
+  <div class="hero">
+    <h1>Shop smarter with AI-powered recommendations</h1>
+    <p>Discover products picked for you, sold directly by trusted sellers.</p>
+    <a class="btn btn-primary" href="{{ url_for('products.list_products') }}">Browse Products</a>
+  </div>
+
+  {% if recommendations %}
+  <div class="section-title"><h2>Recommended for you</h2></div>
+  <div class="grid grid-4">
+    {% for p in recommendations %}
+    <a class="product-card" href="{{ url_for('products.product_details', product_id=p['id']) }}">
+      {% if p['image'] %}
+        <img src="{{ url_for('static', filename='images/' + p['image']) }}" alt="{{ p['name'] }}">
+      {% else %}
+        <img src="https://via.placeholder.com/300x200?text=No+Image" alt="{{ p['name'] }}">
+      {% endif %}
+      <div class="body">
+        {% if p['category'] %}<span class="category-tag">{{ p['category'] }}</span>{% endif %}
+        <strong>{{ p['name'] }}</strong>
+        <span class="price">₹{{ "%.2f"|format(p['price']) }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="section-title"><h2>Featured Products</h2></div>
+  <div class="grid grid-4">
+    {% for p in featured %}
+    <a class="product-card" href="{{ url_for('products.product_details', product_id=p['id']) }}">
+      {% if p['image'] %}
+        <img src="{{ url_for('static', filename='images/' + p['image']) }}" alt="{{ p['name'] }}">
+      {% else %}
+        <img src="https://via.placeholder.com/300x200?text=No+Image" alt="{{ p['name'] }}">
+      {% endif %}
+      <div class="body">
+        {% if p['category'] %}<span class="category-tag">{{ p['category'] }}</span>{% endif %}
+        <strong>{{ p['name'] }}</strong>
+        <span class="price">₹{{ "%.2f"|format(p['price']) }}</span>
+      </div>
+    </a>
+    {% else %}
+    <p class="empty-state">No products yet. Check back soon!</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% include "footer.html" %}
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

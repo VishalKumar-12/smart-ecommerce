@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Checkout - SmartShop</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="{{ url_for('products.index') }}">SmartShop</a>
+    <div class="navbar-links">
+      <a href="{{ url_for('orders.cart') }}">Cart</a>
+      <div class="navbar-user">{{ session.name }} <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+    </div>
+  </div>
+</nav>
+
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+  {% endwith %}
+</div>
+
+<div class="container page">
+  <h1>Checkout</h1>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Order Summary</h3>
+      {% for item in items %}
+        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f1f5f9;">
+          <span>{{ item['name'] }} × {{ item['quantity'] }}</span>
+          <span>₹{{ "%.2f"|format(item['price'] * item['quantity']) }}</span>
+        </div>
+      {% endfor %}
+      <div style="display:flex; justify-content:space-between; margin-top:14px; font-weight:700; font-size:18px;">
+        <span>Total</span><span>₹{{ "%.2f"|format(total) }}</span>
+      </div>
+    </div>
+
+    <form class="card" method="post">
+      <h3>Delivery Address</h3>
+      <div class="form-group">
+        <label>Full Address</label>
+        <textarea name="address" required placeholder="House no, street, city, pincode..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Place Order</button>
+    </form>
+  </div>
+</div>
+
+{% include "footer.html" %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

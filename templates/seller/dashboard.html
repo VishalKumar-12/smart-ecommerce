@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Seller Dashboard - SmartShop</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="{{ url_for('products.index') }}">SmartShop</a>
+    <div class="navbar-links">
+      <a href="{{ url_for('products.list_products') }}">Storefront</a>
+      <div class="navbar-user">{{ session.name }} <span class="role-tag">seller</span> <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+    </div>
+  </div>
+</nav>
+
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+  {% endwith %}
+</div>
+
+<div class="container page">
+  <div class="dash-layout">
+    <div class="dash-sidebar">
+      <a class="active" href="{{ url_for('seller.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('seller.products') }}">My Products</a>
+      <a href="{{ url_for('seller.orders') }}">Orders</a>
+      <a href="{{ url_for('seller.add_product') }}">Add Product</a>
+      <a href="{{ url_for('seller.inventory') }}">Inventory</a>
+    </div>
+    <div>
+      <div class="dash-header"><h1>Seller Dashboard</h1></div>
+
+      <div class="dash-stats">
+        <div class="card stat-card"><div class="num">{{ stats.product_count }}</div><div class="label">Products</div></div>
+        <div class="card stat-card"><div class="num">{{ stats.total_stock }}</div><div class="label">Total Stock</div></div>
+        <div class="card stat-card"><div class="num">{{ stats.orders_count }}</div><div class="label">Orders</div></div>
+        <div class="card stat-card"><div class="num">₹{{ "%.2f"|format(stats.total_sales) }}</div><div class="label">Total Sales</div></div>
+      </div>
+
+      {% if stats.low_stock %}
+      <div class="dash-section">
+        <h3>Low Stock Alerts</h3>
+        {% for p in stats.low_stock %}
+        <div class="low-stock-item">
+          <span>{{ p['name'] }}</span>
+          <span class="badge badge-low">{{ p['stock'] }} left</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="dash-section">
+        <h3>Recent Orders</h3>
+        {% if recent_orders %}
+        <table>
+          <thead><tr><th>Order</th><th>Product</th><th>Qty</th><th>Price</th><th>Date</th></tr></thead>
+          <tbody>
+          {% for o in recent_orders %}
+            <tr>
+              <td>#{{ o['order_id'] }}</td>
+              <td>{{ o['product_name'] }}</td>
+              <td>{{ o['quantity'] }}</td>
+              <td>₹{{ "%.2f"|format(o['price']) }}</td>
+              <td>{{ o['created_at'] }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="empty-state">No orders yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

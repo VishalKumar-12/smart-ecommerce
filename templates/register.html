@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register - SmartShop</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="{{ url_for('products.index') }}">SmartShop</a>
+    <div class="navbar-links">
+      <a href="{{ url_for('products.list_products') }}">Products</a>
+      <a href="{{ url_for('auth.login') }}">Login</a>
+    </div>
+  </div>
+</nav>
+
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+  {% endwith %}
+</div>
+
+<form class="form-box" method="post">
+  <h2>Create an account</h2>
+  <div class="form-group">
+    <label>Full Name</label>
+    <input type="text" name="name" required>
+  </div>
+  <div class="form-group">
+    <label>Email</label>
+    <input type="email" name="email" required>
+  </div>
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" name="password" required>
+  </div>
+  <div class="form-group">
+    <label>Account Type</label>
+    <select name="role">
+      <option value="customer">Customer</option>
+      <option value="seller">Seller</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary btn-full">Register</button>
+  <p style="margin-top:14px; font-size:14px;">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+</form>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

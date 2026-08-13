@@ -1,0 +1,40 @@
+<footer class="site-footer">
+  <div class="footer-inner">
+
+    <div class="footer-brand">
+      <h3>SmartShop</h3>
+      <p>Shop smarter with AI-powered recommendations.</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Shop</h4>
+      <a href="{{ url_for('products.index') }}">Home</a>
+      <a href="{{ url_for('products.list_products') }}">Products</a>
+      {% if session.user_id %}
+        <a href="{{ url_for('orders.cart') }}">Cart</a>
+        <a href="{{ url_for('orders.orders_history') }}">My Orders</a>
+      {% endif %}
+    </div>
+
+    <div class="footer-section">
+      <h4>Account</h4>
+      {% if session.user_id %}
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="{{ url_for('auth.register') }}">Register</a>
+      {% endif %}
+    </div>
+
+    <div class="footer-section">
+      <h4>SmartShop</h4>
+      <p>Discover products picked for you and shop from trusted sellers.</p>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; {{ 2026 }} SmartShop. All rights reserved.</p>
+    <p>Made with ❤️ for smarter shopping.</p>
+  </div>
+</footer>

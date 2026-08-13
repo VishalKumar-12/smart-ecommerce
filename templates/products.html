@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SmartShop - Products</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="{{ url_for('products.index') }}">SmartShop</a>
+    <form class="navbar-search" id="search-form" action="{{ url_for('products.list_products') }}" method="get">
+      <input type="text" name="q" value="{{ search }}" placeholder="Search products...">
+      <button type="submit">Search</button>
+    </form>
+    <div class="navbar-links">
+      <a href="{{ url_for('products.list_products') }}">Products</a>
+      {% if session.user_id %}
+        <a class="cart-link" href="{{ url_for('orders.cart') }}">Cart</a>
+        <a href="{{ url_for('orders.orders_history') }}">My Orders</a>
+        {% if session.role == 'seller' %}<a href="{{ url_for('seller.dashboard') }}">Seller Panel</a>{% endif %}
+        {% if session.role == 'admin' %}<a href="{{ url_for('admin.dashboard') }}">Admin Panel</a>{% endif %}
+        <div class="navbar-user">{{ session.name }} <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="{{ url_for('auth.register') }}">Register</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+  {% endwith %}
+</div>
+
+<div class="container page">
+  <h1>All Products</h1>
+
+  <div style="margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap;">
+    <a data-category-chip href="{{ url_for('products.list_products') }}" class="btn btn-sm {{ 'btn-primary' if not selected_category else 'btn-secondary' }}">All</a>
+    {% for c in categories %}
+      <a data-category-chip href="{{ url_for('products.list_products', category=c) }}" class="btn btn-sm {{ 'btn-primary' if selected_category == c else 'btn-secondary' }}">{{ c }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="grid grid-4">
+    {% for p in products %}
+    <div class="product-card">
+      <a href="{{ url_for('products.product_details', product_id=p['id']) }}">
+        {% if p['image'] %}
+          <img src="{{ url_for('static', filename='images/' + p['image']) }}" alt="{{ p['name'] }}">
+        {% else %}
+          <img src="https://via.placeholder.com/300x200?text=No+Image" alt="{{ p['name'] }}">
+        {% endif %}
+      </a>
+      <div class="body">
+        {% if p['category'] %}<span class="category-tag">{{ p['category'] }}</span>{% endif %}
+        <a href="{{ url_for('products.product_details', product_id=p['id']) }}"><strong>{{ p['name'] }}</strong></a>
+        <span class="price">₹{{ "%.2f"|format(p['price']) }}</span>
+        {% if p['stock'] > 0 %}
+          <span class="stock-ok">In stock ({{ p['stock'] }})</span>
+        {% else %}
+          <span class="stock-low">Out of stock</span>
+        {% endif %}
+        <form action="{{ url_for('orders.add', product_id=p['id']) }}" method="post">
+          <input type="hidden" name="quantity" value="1">
+          <button type="submit" class="btn btn-primary btn-sm btn-full" {{ 'disabled' if p['stock'] <= 0 }}>Add to Cart</button>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <p class="empty-state">No products found.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% include "footer.html" %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/products.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Orders - SmartShop</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="{{ url_for('products.index') }}">SmartShop</a>
+    <div class="navbar-links">
+      <a href="{{ url_for('products.list_products') }}">Products</a>
+      <a href="{{ url_for('orders.cart') }}">Cart</a>
+      <div class="navbar-user">{{ session.name }} <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+    </div>
+  </div>
+</nav>
+
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+  {% endwith %}
+</div>
+
+<div class="container page">
+  <h1>My Orders</h1>
+
+  {% if orders %}
+  {% for entry in orders %}
+  <div class="card" style="margin-bottom:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <div>
+        <strong>Order #{{ entry['order']['id'] }}</strong>
+        {% if entry['is_cancelled'] %}
+          <span class="badge badge-low">Cancelled</span>
+        {% else %}
+          <span class="badge {{ 'badge-ok' if entry['status'] == 'delivered' else 'badge-placed' }}">
+            {{ entry['status'].replace('_', ' ')|title }}
+          </span>
+        {% endif %}
+      </div>
+      <div style="color:#64748b; font-size:13px;">{{ entry['order']['created_at'] }}</div>
+    </div>
+    <p style="color:#64748b; font-size:13px;">Deliver to: {{ entry['order']['address'] }}</p>
+
+    {% if not entry['is_cancelled'] %}
+    <div class="order-tracker">
+      {% for stage in ['placed', 'shipped', 'out_for_delivery', 'delivered'] %}
+      <div class="tracker-step {{ 'done' if loop.index0 <= entry['stage_index'] else '' }}">
+        <div class="tracker-dot"></div>
+        <div class="tracker-label">
+          {% if stage == 'placed' %}Order Placed
+          {% elif stage == 'shipped' %}Shipped
+          {% elif stage == 'out_for_delivery' %}Out for Delivery
+          {% else %}Delivered{% endif %}
+        </div>
+      </div>
+      {% if not loop.last %}<div class="tracker-line {{ 'done' if loop.index0 < entry['stage_index'] else '' }}"></div>{% endif %}
+      {% endfor %}
+    </div>
+    {% if entry['status'] != 'delivered' and entry['estimated_delivery'] %}
+      <p style="font-size:13px; color:#2563eb; margin-top:8px;">📦 Estimated delivery by <strong>{{ entry['estimated_delivery'] }}</strong></p>
+    {% elif entry['status'] == 'delivered' %}
+      <p style="font-size:13px; color:#16a34a; margin-top:8px;">✔ Delivered</p>
+    {% endif %}
+    {% endif %}
+
+    <table style="margin-top:14px;">
+      <thead><tr><th>Product</th><th>Qty</th><th>Price</th></tr></thead>
+      <tbody>
+      {% for item in entry['items'] %}
+        <tr>
+          <td>{{ item['name'] }}</td>
+          <td>{{ item['quantity'] }}</td>
+          <td>₹{{ "%.2f"|format(item['price']) }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div style="text-align:right; font-weight:700; margin-top:10px;">Total: ₹{{ "%.2f"|format(entry['order']['total']) }}</div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="empty-state">
+    <h2>No orders yet</h2>
+    <a href="{{ url_for('products.list_products') }}" class="btn btn-primary">Start Shopping</a>
+  </div>
+  {% endif %}
+</div>
+
+{% include "footer.html" %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
