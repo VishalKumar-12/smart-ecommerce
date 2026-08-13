@@ -1,0 +1,70 @@
+<!-- =========================================================
+     AI Product Assistant
+     ========================================================= -->
+
+<div class="chatbot-container">
+
+    <!-- Chat Header -->
+    <div class="chatbot-header">
+        <div>
+            <h3>AI Product Assistant</h3>
+            <span>Ask me about our products</span>
+        </div>
+
+        <button id="chatbot-close">×</button>
+    </div>
+
+
+    <!-- Messages -->
+    <div id="chatbot-messages" class="chatbot-messages">
+
+        <div class="chat-message bot-message">
+            <div class="message-bubble">
+                Hi! 👋 I can help you find products.
+                What are you looking for?
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Typing Indicator -->
+    <div id="chatbot-typing" class="chatbot-typing hidden">
+        AI is typing...
+    </div>
+
+
+    <!-- Input -->
+    <div class="chatbot-input-area">
+
+        <input
+            type="text"
+            id="chatbot-input"
+            placeholder="Ask about a product..."
+            autocomplete="off"
+        >
+
+        <button id="chatbot-send">
+            Send
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- Floating Chat Button -->
+
+<button id="chatbot-toggle" class="chatbot-toggle">
+    💬
+</button>
+
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/chatbot.css') }}"
+>
+
+<script
+    src="{{ url_for('static', filename='js/chatbot.js') }}"
+></script>

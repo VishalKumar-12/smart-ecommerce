@@ -1,3 +1,4 @@
+
 // Products listing page: live client-side filtering by category chips
 document.addEventListener("DOMContentLoaded", function () {
   var chips = document.querySelectorAll("[data-category-chip]");
@@ -16,3 +17,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+

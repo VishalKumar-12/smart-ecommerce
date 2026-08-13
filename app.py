@@ -1,57 +1,126 @@
 import os
-import psycopg2
-from psycopg2.extras import RealDictCursor
+
 from dotenv import load_dotenv
+
+# =========================================================
+# Load environment variables FIRST
+# =========================================================
+
+load_dotenv()
+
+print(
+    "GROQ KEY LOADED:",
+    bool(os.getenv("GROQ_API_KEY"))
+)
+
+
+# =========================================================
+# Imports
+# =========================================================
+
+import psycopg2
+
+from psycopg2.extras import RealDictCursor
+
 from flask import Flask, g
+
+
+# =========================================================
+# Routes / Blueprints
+# =========================================================
 
 from routes.auth import auth_bp
 from routes.products import products_bp
 from routes.orders import orders_bp
 from routes.seller import seller_bp
 from routes.admin import admin_bp
+from routes.chatbot import chatbot_bp
 
-load_dotenv()
+
+# =========================================================
+# Flask App
+# =========================================================
 
 app = Flask(__name__)
+
+
 app.secret_key = os.getenv(
     "SECRET_KEY",
     "smart-ecommerce-secret-key-change-in-production"
 )
 
+
+# =========================================================
+# Database Configuration
+# =========================================================
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL not found in .env")
 
+if not DATABASE_URL:
+
+    raise RuntimeError(
+        "DATABASE_URL not found in .env"
+    )
+
+
+# =========================================================
+# Database Connection
+# =========================================================
 
 def get_db():
+
     if "db" not in g:
+
         g.db = psycopg2.connect(
             DATABASE_URL,
             cursor_factory=RealDictCursor
         )
+
     return g.db
 
 
+# =========================================================
+# New Database Connection
+# =========================================================
+
 def get_conn():
+
     return psycopg2.connect(
         DATABASE_URL,
         cursor_factory=RealDictCursor
     )
 
 
+# =========================================================
+# Close Database Connection
+# =========================================================
+
 @app.teardown_appcontext
 def close_db(exception=None):
+
     db = g.pop("db", None)
+
     if db:
+
         db.close()
 
 
+# =========================================================
+# Initialize Database
+# =========================================================
+
 def init_db():
+
     conn = get_db()
+
     cur = conn.cursor()
 
+
+    # =====================================================
     # Users
+    # =====================================================
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -63,7 +132,11 @@ def init_db():
         )
     """)
 
+
+    # =====================================================
     # Products
+    # =====================================================
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
@@ -76,23 +149,34 @@ def init_db():
             image TEXT,
             embedding vector(384),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (seller_id) REFERENCES users(id)
+            FOREIGN KEY (seller_id)
+                REFERENCES users(id)
         )
     """)
 
+
+    # =====================================================
     # Cart
+    # =====================================================
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS cart (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
             product_id INTEGER NOT NULL,
             quantity INTEGER NOT NULL DEFAULT 1,
-            FOREIGN KEY (user_id) REFERENCES users(id),
-            FOREIGN KEY (product_id) REFERENCES products(id)
+            FOREIGN KEY (user_id)
+                REFERENCES users(id),
+            FOREIGN KEY (product_id)
+                REFERENCES products(id)
         )
     """)
 
+
+    # =====================================================
     # Orders
+    # =====================================================
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
@@ -101,11 +185,16 @@ def init_db():
             status TEXT NOT NULL DEFAULT 'placed',
             address TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
+            FOREIGN KEY (user_id)
+                REFERENCES users(id)
         )
     """)
 
+
+    # =====================================================
     # Order Items
+    # =====================================================
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS order_items (
             id SERIAL PRIMARY KEY,
@@ -114,45 +203,97 @@ def init_db():
             seller_id INTEGER NOT NULL,
             quantity INTEGER NOT NULL,
             price NUMERIC(10,2) NOT NULL,
-            FOREIGN KEY (order_id) REFERENCES orders(id),
-            FOREIGN KEY (product_id) REFERENCES products(id)
+            FOREIGN KEY (order_id)
+                REFERENCES orders(id),
+            FOREIGN KEY (product_id)
+                REFERENCES products(id)
         )
     """)
 
-    # Admin
+
+    # =====================================================
+    # Create Default Admin
+    # =====================================================
+
     from werkzeug.security import generate_password_hash
 
+
     cur.execute(
-        "SELECT id FROM users WHERE role = %s LIMIT 1",
+        """
+        SELECT id
+        FROM users
+        WHERE role = %s
+        LIMIT 1
+        """,
         ("admin",)
     )
 
+
     if not cur.fetchone():
-        cur.execute("""
+
+        cur.execute(
+            """
             INSERT INTO users
             (name, email, password, role)
             VALUES (%s, %s, %s, %s)
-        """, (
-            "Admin",
-            "admin@smartshop.com",
-            generate_password_hash("admin123"),
-            "admin"
-        ))
+            """,
+            (
+                "Admin",
+                "admin@smartshop.com",
+                generate_password_hash("admin123"),
+                "admin"
+            )
+        )
+
+
+    # =====================================================
+    # Commit Changes
+    # =====================================================
 
     conn.commit()
+
     cur.close()
 
 
-# Blueprints
+# =========================================================
+# Register Blueprints
+# =========================================================
+
 app.register_blueprint(auth_bp)
+
 app.register_blueprint(products_bp)
+
 app.register_blueprint(orders_bp)
+
 app.register_blueprint(seller_bp)
+
 app.register_blueprint(admin_bp)
 
+app.register_blueprint(chatbot_bp)
+
+
+# =========================================================
+# Debug - Registered Routes
+# =========================================================
+
+print("\n========== REGISTERED ROUTES ==========")
+
+print(app.url_map)
+
+print("=======================================\n")
+
+
+# =========================================================
+# Run Application
+# =========================================================
 
 if __name__ == "__main__":
+
     with app.app_context():
+
         init_db()
 
-    app.run(debug=True)
+
+    app.run(
+        debug=True
+    )

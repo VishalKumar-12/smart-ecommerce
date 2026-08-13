@@ -18,7 +18,9 @@
     <div class="navbar-links">
       <a href="{{ url_for('products.list_products') }}">Products</a>
       {% if session.user_id %}
-        <a class="cart-link" href="{{ url_for('orders.cart') }}">Cart</a>
+        <a class="cart-link" href="{{ url_for('orders.cart') }}">
+         Cart (<span id="cart-count">0</span>)
+         </a>
         <a href="{{ url_for('orders.orders_history') }}">My Orders</a>
         {% if session.role == 'seller' %}<a href="{{ url_for('seller.dashboard') }}">Seller Panel</a>{% endif %}
         {% if session.role == 'admin' %}<a href="{{ url_for('admin.dashboard') }}">Admin Panel</a>{% endif %}
@@ -66,7 +68,7 @@
         {% else %}
           <span class="stock-low">Out of stock</span>
         {% endif %}
-        <form action="{{ url_for('orders.add', product_id=p['id']) }}" method="post">
+          <form class="add-to-cart-form" action="{{ url_for('orders.add', product_id=p['id']) }}" method="post">
           <input type="hidden" name="quantity" value="1">
           <button type="submit" class="btn btn-primary btn-sm btn-full" {{ 'disabled' if p['stock'] <= 0 }}>Add to Cart</button>
         </form>
@@ -81,5 +83,6 @@
 {% include "footer.html" %}
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 <script src="{{ url_for('static', filename='js/products.js') }}"></script>
+{% include 'chatbot.html' %}
 </body>
 </html>
