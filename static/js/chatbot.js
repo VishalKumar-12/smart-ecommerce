@@ -167,11 +167,8 @@ function escapeHtml(text) {
 // =========================================================
 
 function viewProduct(productId) {
-
-    window.location.href = `/product/${productId}`;
-
+    window.location.href = `/products/${productId}`;
 }
-
 
 // =========================================================
 // Send Message
