@@ -1,5 +1,5 @@
 from database import get_conn, release_conn, get_cursor
-from ai.embeddings import create_embedding
+
 
 
 # =========================================================
@@ -136,7 +136,7 @@ def create_product(
     category,
     image
 ):
-
+    from ai.embeddings import create_embedding
     conn = get_conn()
     cur = get_cursor(conn)
 
@@ -228,7 +228,7 @@ def update_product(
     category,
     image=None
 ):
-
+    from ai.embeddings import create_embedding
     conn = get_conn()
     cur = get_cursor(conn)
 
