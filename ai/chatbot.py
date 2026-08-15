@@ -37,12 +37,125 @@ def retrieve_products(question, limit=5):
     cur = None
 
     try:
+
         cur = get_cursor(conn)
 
-        search = question.strip()
+        # -------------------------------------------------
+        # Clean user question
+        # -------------------------------------------------
 
-        cur.execute(
-            """
+        search = question.lower().strip()
+
+        # -------------------------------------------------
+        # Common words that are not useful for searching
+        # -------------------------------------------------
+
+        stop_words = {
+            "i",
+            "want",
+            "need",
+            "a",
+            "an",
+            "the",
+            "for",
+            "to",
+            "me",
+            "please",
+            "show",
+            "give",
+            "get",
+            "looking",
+            "lookingfor",
+            "can",
+            "you",
+            "do",
+            "have",
+            "some",
+            "my",
+            "is",
+            "are",
+            "of",
+            "with",
+            "on",
+            "in",
+            "from",
+            "and",
+            "or",
+            "buy",
+            "purchase",
+            "find"
+        }
+
+        # -------------------------------------------------
+        # Extract useful keywords
+        # -------------------------------------------------
+
+        words = search.split()
+
+        keywords = []
+
+        for word in words:
+
+            word = word.strip(".,!?;:")
+
+            if (
+                word
+                and word not in stop_words
+                and len(word) >= 2
+            ):
+                keywords.append(word)
+
+        # -------------------------------------------------
+        # Remove duplicate keywords
+        # -------------------------------------------------
+
+        keywords = list(dict.fromkeys(keywords))
+
+        # -------------------------------------------------
+        # No useful keywords
+        # -------------------------------------------------
+
+        if not keywords:
+            return []
+
+        # -------------------------------------------------
+        # Build dynamic SQL search
+        # -------------------------------------------------
+
+        conditions = []
+        params = []
+
+        for keyword in keywords:
+
+            conditions.append(
+                """
+                (
+                    name ILIKE %s
+                    OR description ILIKE %s
+                    OR category ILIKE %s
+                )
+                """
+            )
+
+            search_term = f"%{keyword}%"
+
+            params.extend([
+                search_term,
+                search_term,
+                search_term
+            ])
+
+        # -------------------------------------------------
+        # Combine conditions
+        # -------------------------------------------------
+
+        where_clause = " OR ".join(conditions)
+
+        # -------------------------------------------------
+        # SQL Query
+        # -------------------------------------------------
+
+        query = f"""
             SELECT
                 id,
                 name,
@@ -53,19 +166,21 @@ def retrieve_products(question, limit=5):
             FROM products
             WHERE stock > 0
             AND (
-                name ILIKE %s
-                OR description ILIKE %s
-                OR category ILIKE %s
+                {where_clause}
             )
             ORDER BY created_at DESC
             LIMIT %s
-            """,
-            (
-                f"%{search}%",
-                f"%{search}%",
-                f"%{search}%",
-                limit
-            )
+        """
+
+        params.append(limit)
+
+        # -------------------------------------------------
+        # Execute query
+        # -------------------------------------------------
+
+        cur.execute(
+            query,
+            params
         )
 
         return cur.fetchall()
@@ -85,6 +200,7 @@ def retrieve_products(question, limit=5):
 def create_product_context(products):
 
     if not products:
+
         return "No relevant products were found."
 
     context = []
@@ -134,6 +250,10 @@ def is_greeting(question):
 
 def generate_chatbot_response(question):
 
+    # -----------------------------------------------------
+    # Greeting
+    # -----------------------------------------------------
+
     if is_greeting(question):
 
         return {
@@ -144,14 +264,26 @@ def generate_chatbot_response(question):
             "products": []
         }
 
+    # -----------------------------------------------------
+    # Retrieve products
+    # -----------------------------------------------------
+
     products = retrieve_products(
         question,
         limit=5
     )
 
+    # -----------------------------------------------------
+    # Create product context
+    # -----------------------------------------------------
+
     product_context = create_product_context(
         products
     )
+
+    # -----------------------------------------------------
+    # AI Prompt
+    # -----------------------------------------------------
 
     prompt = f"""
 You are a product assistant for this e-commerce website.
@@ -197,7 +329,15 @@ USER QUESTION:
 ANSWER:
 """
 
+    # -----------------------------------------------------
+    # Generate AI response
+    # -----------------------------------------------------
+
     response = llm.invoke(prompt)
+
+    # -----------------------------------------------------
+    # Return response
+    # -----------------------------------------------------
 
     return {
         "answer": response.content,
