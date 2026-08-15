@@ -8,7 +8,7 @@ products_bp = Blueprint("products", __name__)
 
 @products_bp.route("/")
 def index():
-    featured = get_all_products()[:8]
+    featured = get_all_products()[:12]
     recommendations = []
     if "user_id" in session:
         recommendations = recommend_for_user(session["user_id"], limit=6)
