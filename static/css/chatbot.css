@@ -316,3 +316,80 @@
 .view-product-btn:hover {
     opacity: 0.85;
 }
+
+
+/* =========================================================
+   Mobile Responsive Chatbot
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .chatbot-container {
+        right: 10px;
+        left: 10px;
+        bottom: 85px;
+
+        width: auto;
+        height: 70vh;
+        max-height: 500px;
+
+        border-radius: 15px;
+    }
+
+    .chatbot-toggle {
+        right: 15px;
+        bottom: 15px;
+
+        width: 52px;
+        height: 52px;
+
+        font-size: 22px;
+    }
+
+    .chatbot-header {
+        padding: 12px 14px;
+    }
+
+    .chatbot-header h3 {
+        font-size: 15px;
+    }
+
+    .chatbot-header span {
+        font-size: 11px;
+    }
+
+    .chatbot-messages {
+        padding: 12px;
+    }
+
+    .message-bubble {
+        max-width: 85%;
+        font-size: 13px;
+    }
+
+    .chatbot-input-area {
+        padding: 8px;
+    }
+
+    #chatbot-input {
+        min-width: 0;
+        font-size: 14px;
+    }
+
+    #chatbot-send {
+        padding: 9px 12px;
+        margin-left: 6px;
+    }
+
+    .chat-product-card {
+        padding: 10px;
+    }
+
+    .chat-product-card h4 {
+        font-size: 13px;
+    }
+
+    .chat-product-price {
+        font-size: 15px;
+    }
+}
