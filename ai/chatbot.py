@@ -1,11 +1,10 @@
 # =========================================================
-# AI Product Assistant - RAG + Llama
+# AI Product Assistant - Lightweight RAG + Groq
 # =========================================================
 
 import os
 
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
 from langchain_groq import ChatGroq
 
 from database import (
@@ -14,25 +13,11 @@ from database import (
     release_conn
 )
 
-
-# =========================================================
-# Load environment variables
-# =========================================================
-
 load_dotenv()
 
 
 # =========================================================
-# 1. Load existing embedding model
-# =========================================================
-
-embedding_model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
-)
-
-
-# =========================================================
-# 2. Groq + Llama LLM
+# Groq + Llama
 # =========================================================
 
 llm = ChatGroq(
@@ -43,21 +28,7 @@ llm = ChatGroq(
 
 
 # =========================================================
-# 3. Create embedding for user's question
-# =========================================================
-
-def create_query_embedding(question):
-
-    embedding = embedding_model.encode(
-        question,
-        normalize_embeddings=True
-    )
-
-    return embedding.tolist()
-
-
-# =========================================================
-# 4. Retrieve relevant products using pgvector
+# Product Search
 # =========================================================
 
 def retrieve_products(question, limit=5):
@@ -66,26 +37,9 @@ def retrieve_products(question, limit=5):
     cur = None
 
     try:
-
-        # -------------------------------------------------
-        # Create query embedding
-        # -------------------------------------------------
-
-        query_embedding = create_query_embedding(
-            question
-        )
-
-
-        # -------------------------------------------------
-        # Create cursor
-        # -------------------------------------------------
-
         cur = get_cursor(conn)
 
-
-        # -------------------------------------------------
-        # pgvector similarity search
-        # -------------------------------------------------
+        search = question.strip()
 
         cur.execute(
             """
@@ -97,53 +51,43 @@ def retrieve_products(question, limit=5):
                 description,
                 stock
             FROM products
-            WHERE embedding IS NOT NULL
-            ORDER BY embedding <=> %s::vector
+            WHERE stock > 0
+            AND (
+                name ILIKE %s
+                OR description ILIKE %s
+                OR category ILIKE %s
+            )
+            ORDER BY created_at DESC
             LIMIT %s
             """,
             (
-                query_embedding,
+                f"%{search}%",
+                f"%{search}%",
+                f"%{search}%",
                 limit
             )
         )
 
-
-        products = cur.fetchall()
-
-        return products
-
+        return cur.fetchall()
 
     finally:
 
-        # -------------------------------------------------
-        # Close cursor
-        # -------------------------------------------------
-
         if cur:
             cur.close()
-
-
-        # -------------------------------------------------
-        # IMPORTANT:
-        # Return connection to connection pool
-        # -------------------------------------------------
 
         release_conn(conn)
 
 
 # =========================================================
-# 5. Create product context for LLM
+# Product Context
 # =========================================================
 
 def create_product_context(products):
 
     if not products:
-
         return "No relevant products were found."
 
-
     context = []
-
 
     for product in products:
 
@@ -158,12 +102,11 @@ Stock: {product['stock']}
 """
         )
 
-
     return "\n".join(context)
 
 
 # =========================================================
-# 6. Greeting Detection
+# Greeting Detection
 # =========================================================
 
 def is_greeting(question):
@@ -186,14 +129,10 @@ def is_greeting(question):
 
 
 # =========================================================
-# 7. Generate AI Assistant Response
+# Generate Chatbot Response
 # =========================================================
 
 def generate_chatbot_response(question):
-
-    # =====================================================
-    # Greeting
-    # =====================================================
 
     if is_greeting(question):
 
@@ -205,29 +144,14 @@ def generate_chatbot_response(question):
             "products": []
         }
 
-
-    # =====================================================
-    # RAG - Retrieve relevant products
-    # =====================================================
-
     products = retrieve_products(
         question,
         limit=5
     )
 
-
-    # =====================================================
-    # Create product context
-    # =====================================================
-
     product_context = create_product_context(
         products
     )
-
-
-    # =====================================================
-    # Prompt for Llama
-    # =====================================================
 
     prompt = f"""
 You are a product assistant for this e-commerce website.
@@ -241,26 +165,26 @@ STRICT RULES:
 3. Never guess or assume product information.
 
 4. Never invent product names, prices, features,
-   specifications, ratings, availability or stock.
+specifications, ratings, availability or stock.
 
 5. If the requested information is not present
-   in PRODUCT CONTEXT, say:
+in PRODUCT CONTEXT, say:
 
-   "I don't have that information in the available
-   product data."
+"I don't have that information in the available
+product data."
 
 6. If no relevant products were retrieved,
-   do not recommend any product.
+do not recommend any product.
 
 7. If the user asks for a price range, strictly
-   respect that range.
+respect that range.
 
 8. If the user asks something unrelated to products,
-   politely say that you can only help with
-   product-related questions.
+politely say that you can only help with
+product-related questions.
 
 9. Keep the answer concise and directly answer
-   what the user asked.
+what the user asked.
 
 10. Do not add unrelated information.
 
@@ -273,17 +197,7 @@ USER QUESTION:
 ANSWER:
 """
 
-
-    # =====================================================
-    # Llama generates final answer
-    # =====================================================
-
     response = llm.invoke(prompt)
-
-
-    # =====================================================
-    # Return answer + products
-    # =====================================================
 
     return {
         "answer": response.content,
