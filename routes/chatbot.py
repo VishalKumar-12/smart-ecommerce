@@ -64,12 +64,12 @@ def chat():
         # Return response + products
         # -------------------------------------------------
 
-        return jsonify({
-            "success": True,
-            "message": question,
-            "answer": result["answer"],
-       
-        }), 200
+       return jsonify({
+         "success": True,
+         "message": question,
+         "answer": result["answer"],
+         "products": result["products"]
+       }), 200
 
 
     except Exception as e:
