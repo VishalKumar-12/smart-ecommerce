@@ -1,20 +1,29 @@
 /* =========================================================
-   AI Product Assistant - Chatbot UI
+   AI PRODUCT ASSISTANT - CHATBOT UI
+   ========================================================= */
+
+
+/* =========================================================
+   CHATBOT CONTAINER
    ========================================================= */
 
 .chatbot-container {
     position: fixed;
-    right: 25px;
-    bottom: 90px;
+
+    right: 62px;
+    bottom: 100px;
 
     width: 360px;
     height: 500px;
 
-    background: white;
+    background: #ffffff;
 
-    border-radius: 15px;
+    border: 1px solid #e8e8e8;
+    border-radius: 18px;
 
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.15),
+        0 5px 15px rgba(0, 0, 0, 0.08);
 
     display: none;
 
@@ -26,63 +35,120 @@
 }
 
 
-/* ---------------------------------------------------------
-   Header
-   --------------------------------------------------------- */
+/* =========================================================
+   CHATBOT HEADER
+   ========================================================= */
 
 .chatbot-header {
-    background: #222;
+    background: #222222;
 
-    color: white;
+    color: #ffffff;
 
-    padding: 15px;
+    padding: 16px 18px;
 
     display: flex;
 
     justify-content: space-between;
 
     align-items: center;
+
+    border-bottom: 1px solid #333333;
 }
+
 
 .chatbot-header h3 {
     margin: 0;
 
-    font-size: 17px;
+    font-size: 18px;
+
+    font-weight: 600;
 }
+
 
 .chatbot-header span {
-    font-size: 12px;
+    display: block;
 
-    opacity: 0.8;
+    margin-top: 2px;
+
+    font-size: 11px;
+
+    color: #bdbdbd;
 }
 
+
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
+
 #chatbot-close {
-    background: none;
+    background: transparent;
 
     border: none;
 
-    color: white;
+    color: #ffffff;
 
     font-size: 24px;
 
+    line-height: 1;
+
     cursor: pointer;
+
+    padding: 2px 5px;
+
+    border-radius: 6px;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 
-/* ---------------------------------------------------------
-   Messages
-   --------------------------------------------------------- */
+#chatbot-close:hover {
+    background: rgba(255, 255, 255, 0.10);
+
+    transform: scale(1.08);
+}
+
+
+/* =========================================================
+   CHAT MESSAGES AREA
+   ========================================================= */
 
 .chatbot-messages {
     flex: 1;
 
-    padding: 15px;
+    padding: 16px;
 
     overflow-y: auto;
 
-    background: #f5f5f5;
+    background: #fafafa;
 }
 
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.chatbot-messages::-webkit-scrollbar {
+    width: 5px;
+}
+
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+    background: #cccccc;
+
+    border-radius: 10px;
+}
+
+
+.chatbot-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
 
 .chat-message {
     display: flex;
@@ -101,43 +167,64 @@
 }
 
 
+/* =========================================================
+   MESSAGE BUBBLE
+   ========================================================= */
+
 .message-bubble {
     max-width: 80%;
 
     padding: 10px 13px;
 
-    border-radius: 12px;
-
     font-size: 14px;
 
-    line-height: 1.4;
+    line-height: 1.45;
+
+    word-wrap: break-word;
 }
 
+
+/* =========================================================
+   BOT MESSAGE
+   ========================================================= */
 
 .bot-message .message-bubble {
-    background: white;
+    background: #ffffff;
 
-    color: #222;
+    color: #222222;
+
+    border: 1px solid #e8e8e8;
+
+    border-radius: 14px 14px 14px 4px;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.04);
 }
 
+
+/* =========================================================
+   USER MESSAGE
+   ========================================================= */
 
 .user-message .message-bubble {
-    background: #222;
+    background: #222222;
 
-    color: white;
+    color: #ffffff;
+
+    border-radius: 14px 14px 4px 14px;
 }
 
 
-/* ---------------------------------------------------------
-   Typing
-   --------------------------------------------------------- */
+/* =========================================================
+   TYPING INDICATOR
+   ========================================================= */
 
 .chatbot-typing {
     padding: 5px 15px;
 
     font-size: 12px;
 
-    color: #777;
+    color: #777777;
 }
 
 
@@ -146,250 +233,754 @@
 }
 
 
-/* ---------------------------------------------------------
-   Input
-   --------------------------------------------------------- */
+/* =========================================================
+   INPUT AREA
+   ========================================================= */
 
 .chatbot-input-area {
     display: flex;
 
-    padding: 10px;
+    padding: 12px;
 
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #e8e8e8;
 
-    background: white;
-}
-
-
-#chatbot-input {
-    flex: 1;
-
-    padding: 10px;
-
-    border: 1px solid #ccc;
-
-    border-radius: 8px;
-
-    outline: none;
-}
-
-
-#chatbot-send {
-    margin-left: 8px;
-
-    padding: 10px 14px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background: #222;
-
-    color: white;
-
-    cursor: pointer;
-}
-
-
-/* ---------------------------------------------------------
-   Floating Button
-   --------------------------------------------------------- */
-
-.chatbot-toggle {
-    position: fixed;
-
-    right: 25px;
-
-    bottom: 20px;
-
-    width: 55px;
-
-    height: 55px;
-
-    border-radius: 50%;
-
-    border: none;
-
-    background: #222;
-
-    color: white;
-
-    font-size: 24px;
-
-    cursor: pointer;
-
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-
-    z-index: 9999;
+    background: #ffffff;
 }
 
 
 /* =========================================================
-   Product Cards
+   INPUT
+   ========================================================= */
+
+#chatbot-input {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 11px 13px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #222222;
+
+    font-size: 14px;
+
+    transition:
+        border 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+#chatbot-input:focus {
+    border-color: #222222;
+
+    box-shadow:
+        0 0 0 2px rgba(34, 34, 34, 0.06);
+}
+
+
+#chatbot-input::placeholder {
+    color: #999999;
+}
+
+
+/* =========================================================
+   SEND BUTTON
+   ========================================================= */
+
+#chatbot-send {
+    margin-left: 8px;
+
+    padding: 10px 15px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #222222;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+#chatbot-send:hover {
+    background: #000000;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+
+#chatbot-send:active {
+    transform: scale(0.96);
+}
+
+
+/* =========================================================
+   FLOATING CHATBOT BUTTON
+   ========================================================= */
+
+.chatbot-toggle {
+    position: fixed;
+
+    right: 60px;
+    bottom: 158px;
+
+    width: 60px;
+    height: 60px;
+
+    padding: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    border-radius: 18px;
+
+    background: #222222;
+
+    cursor: pointer;
+
+    z-index: 9999;
+
+    box-shadow:
+        0 7px 18px rgba(0, 0, 0, 0.22);
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+/* =========================================================
+   ROBOT
+   ========================================================= */
+
+.ai-robot {
+    position: relative;
+
+    width: 37px;
+    height: 42px;
+
+    display: flex;
+
+    justify-content: center;
+
+    transition: transform 0.25s ease;
+}
+
+
+/* =========================================================
+   ANTENNA
+   ========================================================= */
+
+.robot-antenna {
+    position: absolute;
+
+    top: 0;
+
+    width: 3px;
+    height: 8px;
+
+    background: #ffffff;
+
+    border-radius: 5px;
+}
+
+
+.robot-antenna span {
+    position: absolute;
+
+    top: -5px;
+    left: 50%;
+
+    width: 8px;
+    height: 8px;
+
+    background: #119b91;
+
+    border: 2px solid #ffffff;
+
+    border-radius: 50%;
+
+    transform: translateX(-50%);
+}
+
+
+/* =========================================================
+   ROBOT HEAD
+   ========================================================= */
+
+.robot-head {
+    position: absolute;
+
+    top: 9px;
+
+    width: 38px;
+    height: 32px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #ffffff;
+
+    border: 2px solid #222222;
+
+    border-radius: 11px;
+
+    box-shadow:
+        0 3px 7px rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================================================
+   ROBOT EARS
+   ========================================================= */
+
+.robot-ear {
+    position: absolute;
+
+    top: 9px;
+
+    width: 5px;
+    height: 11px;
+
+    background: #119b91;
+
+    border: 1.5px solid #222222;
+
+    border-radius: 4px;
+}
+
+
+.robot-ear.left {
+    left: -6px;
+}
+
+
+.robot-ear.right {
+    right: -6px;
+}
+
+
+/* =========================================================
+   ROBOT EYES
+   ========================================================= */
+
+.robot-eyes {
+    position: absolute;
+
+    top: 9px;
+
+    display: flex;
+
+    gap: 9px;
+}
+
+
+.robot-eyes span {
+    width: 6px;
+    height: 6px;
+
+    background: #119b91;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 5px rgba(17, 155, 145, 0.35);
+}
+
+
+/* =========================================================
+   ROBOT MOUTH
+   ========================================================= */
+
+.robot-mouth {
+    position: absolute;
+
+    bottom: 6px;
+
+    width: 13px;
+    height: 4px;
+
+    background: #222222;
+
+    border-radius: 8px;
+}
+
+
+/* =========================================================
+   AI SPARKLE
+   ========================================================= */
+
+.ai-sparkle {
+    position: absolute;
+
+    top: 5px;
+    right: 5px;
+
+    width: 17px;
+    height: 17px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #119b91;
+
+    color: #ffffff;
+
+    border: 2px solid #222222;
+
+    border-radius: 50%;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.20);
+
+    animation: aiPulse 2s infinite;
+}
+
+
+/* =========================================================
+   AI SPARKLE ANIMATION
+   ========================================================= */
+
+@keyframes aiPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.12);
+    }
+}
+
+
+/* =========================================================
+   FLOATING BUTTON HOVER
+   ========================================================= */
+
+.chatbot-toggle:hover {
+    background: #000000;
+
+    transform:
+        translateY(-4px)
+        scale(1.04);
+
+    box-shadow:
+        0 12px 25px rgba(0, 0, 0, 0.30),
+        0 5px 12px rgba(0, 0, 0, 0.20);
+}
+
+
+/* =========================================================
+   ROBOT HOVER
+   ========================================================= */
+
+.chatbot-toggle:hover .ai-robot {
+    animation: robotFloat 0.7s ease;
+}
+
+
+@keyframes robotFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+
+/* =========================================================
+   CLICK EFFECT
+   ========================================================= */
+
+.chatbot-toggle:active {
+    transform: scale(0.94);
+}
+
+
+/* =========================================================
+   PRODUCT CARDS CONTAINER
    ========================================================= */
 
 .product-cards-container {
     display: flex;
+
     flex-direction: column;
+
     gap: 10px;
+
     margin-top: 10px;
+
     margin-right: 5px;
 }
 
 
-/* ---------------------------------------------------------
-   Product Card
-   --------------------------------------------------------- */
+/* =========================================================
+   PRODUCT CARD
+   ========================================================= */
 
 .chat-product-card {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
+    background: #ffffff;
+
+    border: 1px solid #e8e8e8;
+
+    border-radius: 12px;
+
     padding: 12px;
 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.05);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
+
+.chat-product-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.09);
+}
+
+
+/* =========================================================
+   PRODUCT TITLE
+   ========================================================= */
 
 .chat-product-card h4 {
-    margin: 0 0 5px 0;
+    margin: 0 0 5px;
+
     font-size: 14px;
-    color: #222;
+
+    font-weight: 600;
+
+    color: #222222;
 }
 
 
-/* ---------------------------------------------------------
-   Category
-   --------------------------------------------------------- */
+/* =========================================================
+   PRODUCT CATEGORY
+   ========================================================= */
 
 .chat-product-category {
     margin: 3px 0;
-    font-size: 12px;
-    color: #777;
+
+    font-size: 11px;
+
+    color: #888888;
 }
 
 
-/* ---------------------------------------------------------
-   Price
-   --------------------------------------------------------- */
+/* =========================================================
+   PRODUCT PRICE
+   ========================================================= */
 
 .chat-product-price {
-    margin: 6px 0;
+    margin: 7px 0;
 
     font-size: 16px;
-    font-weight: bold;
 
-    color: #222;
+    font-weight: 700;
+
+    color: #222222;
 }
 
 
-/* ---------------------------------------------------------
-   Stock
-   --------------------------------------------------------- */
+/* =========================================================
+   PRODUCT STOCK
+   ========================================================= */
 
 .chat-product-stock {
     margin: 5px 0 10px;
 
     font-size: 12px;
+
+    color: #666666;
 }
 
 
-/* ---------------------------------------------------------
-   View Product Button
-   --------------------------------------------------------- */
+/* =========================================================
+   VIEW PRODUCT BUTTON
+   ========================================================= */
 
 .view-product-btn {
     width: 100%;
 
-    padding: 8px;
+    padding: 9px;
 
     border: none;
-    border-radius: 7px;
 
-    background: #222;
-    color: white;
+    border-radius: 8px;
+
+    background: #222222;
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 500;
 
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 
 .view-product-btn:hover {
-    opacity: 0.85;
+    background: #000000;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
+
 /* =========================================================
-   Mobile Responsive Chatbot
+   MOBILE RESPONSIVE
    ========================================================= */
 
 @media (max-width: 600px) {
 
+    /* -----------------------------------------------------
+       CHAT WINDOW
+       ----------------------------------------------------- */
+
     .chatbot-container {
         right: 10px;
         left: 10px;
+
         bottom: 85px;
 
         width: auto;
+
         height: 70vh;
+
         max-height: 500px;
 
-        border-radius: 15px;
+        border-radius: 17px;
     }
+
+
+    /* -----------------------------------------------------
+       FLOATING BUTTON
+       ----------------------------------------------------- */
 
     .chatbot-toggle {
         right: 15px;
+
         bottom: 15px;
 
-        width: 52px;
-        height: 52px;
+        width: 56px;
+        height: 56px;
 
-        font-size: 22px;
+        border-radius: 16px;
     }
+
+
+    /* -----------------------------------------------------
+       ROBOT
+       ----------------------------------------------------- */
+
+    .ai-robot {
+        transform: scale(0.92);
+    }
+
+
+    /* -----------------------------------------------------
+       SPARKLE
+       ----------------------------------------------------- */
+
+    .ai-sparkle {
+        top: 4px;
+
+        right: 4px;
+    }
+
+
+    /* -----------------------------------------------------
+       HEADER
+       ----------------------------------------------------- */
 
     .chatbot-header {
         padding: 12px 14px;
     }
 
+
     .chatbot-header h3 {
         font-size: 15px;
     }
 
+
     .chatbot-header span {
-        font-size: 11px;
+        font-size: 10px;
     }
+
+
+    /* -----------------------------------------------------
+       MESSAGES
+       ----------------------------------------------------- */
 
     .chatbot-messages {
         padding: 12px;
     }
 
+
     .message-bubble {
         max-width: 85%;
+
         font-size: 13px;
     }
+
+
+    /* -----------------------------------------------------
+       INPUT
+       ----------------------------------------------------- */
 
     .chatbot-input-area {
         padding: 8px;
     }
 
+
     #chatbot-input {
         min-width: 0;
+
+        padding: 10px;
+
         font-size: 14px;
     }
 
+
     #chatbot-send {
         padding: 9px 12px;
+
         margin-left: 6px;
     }
+
+
+    /* -----------------------------------------------------
+       PRODUCT CARD
+       ----------------------------------------------------- */
 
     .chat-product-card {
         padding: 10px;
     }
 
+
     .chat-product-card h4 {
         font-size: 13px;
     }
+
 
     .chat-product-price {
         font-size: 15px;
     }
 }
 
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .chatbot-container {
+        right: 8px;
+        left: 8px;
+
+        bottom: 78px;
+
+        height: 72vh;
+
+        border-radius: 15px;
+    }
+
+
+    .chatbot-toggle {
+        right: 12px;
+
+        bottom: 12px;
+
+        width: 53px;
+        height: 53px;
+
+        border-radius: 15px;
+    }
+
+
+    .ai-robot {
+        transform: scale(0.86);
+    }
+
+
+    .chatbot-header h3 {
+        font-size: 14px;
+    }
+
+
+    .message-bubble {
+        max-width: 88%;
+
+        font-size: 12.5px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .chatbot-toggle,
+    .ai-robot,
+    .ai-sparkle,
+    .chat-product-card,
+    .view-product-btn,
+    #chatbot-send {
+        animation: none;
+
+        transition: none;
+    }
+}
