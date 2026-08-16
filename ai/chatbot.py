@@ -31,7 +31,7 @@ llm = ChatGroq(
 # Product Search
 # =========================================================
 
-def retrieve_products(question, limit=5):
+def retrieve_products(question, limit=3):
 
     conn = get_conn()
     cur = None
@@ -270,7 +270,7 @@ def generate_chatbot_response(question):
 
     products = retrieve_products(
         question,
-        limit=5
+        limit=3
     )
 
     # -----------------------------------------------------
